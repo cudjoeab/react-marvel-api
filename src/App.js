@@ -26,7 +26,7 @@ class App extends Component {
     this.fetchCharacters = this.fetchCharacters.bind(this);
     this.fetchCharacter = this.fetchCharacter.bind(this);
 
-    this.fetchComics= this.fetchComics.bind(this); 
+    this.fetchComic= this.fetchComic.bind(this); 
     this.fetchMoreComics = this.fetchMoreComics.bind(this); 
 
     this.marvelService = new MarvelService({
