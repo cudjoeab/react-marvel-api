@@ -17,6 +17,7 @@ class App extends Component {
 
     this.state = {
       searchTerm: '',
+      searchType: 'Characters', 
       results: [],
       selectedResult: null,
     };
@@ -24,6 +25,9 @@ class App extends Component {
     this.fetchMoreCharacters = this.fetchMoreCharacters.bind(this); 
     this.fetchCharacters = this.fetchCharacters.bind(this);
     this.fetchCharacter = this.fetchCharacter.bind(this);
+
+    // this.fetchComics= this.fetchComics.bind(this); 
+    // this.fetchMoreComics = this.fetchMoreComics.bind(this); 
 
     this.marvelService = new MarvelService({
       apiKey: this.props.apiKey,
@@ -42,6 +46,7 @@ class App extends Component {
           <ResultsList
             results={ this.state.results }
             searchTerm={ this.state.searchTerm }
+            searchType={ this.state.searchType }
             onResultClick={ this.fetchCharacter }
           />
         );
@@ -62,14 +67,23 @@ class App extends Component {
     let loadMoreElem = '';
 
     if (this.state.canLoadMore) {
-      loadMoreElem = <LoadMore onClick={ this.fetchMoreCharacters }/>; 
+      loadMoreElem = 
+      <LoadMore
+         onClick={ 
+          this.state.searchType === 'Character'
+          ? this.fetchMoreCharacters
+          : this.fetchMoreComics 
+         }
+      />; 
     }
 
     return (
       <section className="app">
         <SearchBar
           searchTerm={ this.state.searchTerm }
-          onSubmit={ (searchTerm) => this.setState({ searchTerm }) }
+          searchType={ this.state.searchType }
+          onSelect={ (searchType) => this.setState({ searchType })}
+          onSubmit={ (searchTerm) => this.setState({ searchTerm })}
         />
         { resultsElem }
         { loadMoreElem }
@@ -83,13 +97,22 @@ class App extends Component {
   // --------------------------------------------------
   componentDidUpdate(_, prevState) {
     const searchTerm = this.state.searchTerm;
+    const searchType = this.state.searchType;
+
     const prevSearchTerm = prevState.searchTerm;
+    const prevSearchType = prevState.searchType;
+    
 
     if (
       searchTerm
-      && (searchTerm !== prevSearchTerm)
+      && (searchTerm !== prevSearchTerm || searchType !== prevSearchType)
     ) {
-      this.fetchCharacters();
+      if(searchType === 'Characters') {
+        this.fetchCharacters();
+      } else {
+        this.fetchComics(); 
+      }
+      
     }
   }
 
@@ -165,6 +188,55 @@ class App extends Component {
         this.setState({ hasError : true})
       }); 
   }
+
+  fetchComics() {
+  
+    this.setState({ 
+      isLoading : true, 
+      hasError: false
+    })
+
+    this.marvelService.getComics({ 
+      titleStartsWith : this.state.searchTerm
+    })
+      .then((data) => {
+        this.setState({ 
+          results: data.results, 
+          isLoading: false,
+          canLoadMore: data.total > data.offset + data.count,
+
+        });
+      })
+      .catch((err) => {
+        console.log(err); 
+        this.setState({ hasError : true})
+      });  
+  }
+
+  fetchMoreComics() {
+    this.marvelService.getComics({ 
+      titleStartsWith : this.state.searchTerm,
+      offset: this.state.results.length, 
+    })
+    // Pass in the current `searchTerm` as `nameStartsWith`,
+      .then((data) => {
+        console.log('.then:')
+        console.log(data.results)
+        // Update the application state using the resulting data.
+        // Remove the loading state.
+        this.setState({ 
+          results: [...this.state.results, ...data.results], 
+          canLoadMore: data.total > data.offset + data.count,
+
+        });
+
+      })
+      // Handle potential errors.
+      .catch((err) => {
+        this.setState({ hasError : true})
+      }); 
+  }
+  
 }
 
 export default App;
