@@ -6,6 +6,7 @@ import { SearchBar } from './components/SearchBar';
 import { Error } from './components/Error';
 import { Loading } from './components/Loading';
 import { MarvelService } from './services/MarvelService';
+import { LoadMore } from './components/LoadMore'; 
 
 class App extends Component {
   // --------------------------------------------------
@@ -57,6 +58,12 @@ class App extends Component {
       )
       : '';
 
+    let loadMoreElem = '';
+
+    if (this.state.canLoadMore) {
+      loadMoreElem = <LoadMore/>; 
+    }
+
     return (
       <section className="app">
         <SearchBar
@@ -64,6 +71,7 @@ class App extends Component {
           onSubmit={ (searchTerm) => this.setState({ searchTerm }) }
         />
         { resultsElem }
+        { loadMoreElem }
         { detailsElem }
       </section>
     );
@@ -88,10 +96,13 @@ class App extends Component {
   // FETCHING CHARACTERS
   // --------------------------------------------------
   fetchCharacters() {
-    console.warn('Whoops, it looks like this method hasn\'t been implemented yet');
     // TODO:
     // Put the application into a loading state.
-    this.setState({ isLoading : true})
+    this.setState({ 
+      isLoading : true, 
+      
+      
+    })
     
     // Invoke the `getCharacters()` method on the marvel service.
     this.marvelService.getCharacters({ nameStartsWith : this.state.searchTerm})
@@ -99,7 +110,12 @@ class App extends Component {
       .then((data) => {
         // Update the application state using the resulting data.
         // Remove the loading state.
-        this.setState({ results: data.results, isLoading: false })
+        this.setState({ 
+          results: data.results, 
+          isLoading: false,
+          canLoadMore: data.total > data.offset + data.count,
+
+        });
 
       })
       // Handle potential errors.
@@ -111,7 +127,7 @@ class App extends Component {
   }
 
   fetchCharacter(id) {
-    console.warn('Whoops, it looks like this method hasn\'t been implemented yet');
+  
     // TODO:
     // Invoke the `getCharacter()` method on the marvel service.
     // Pass in the `id`.
@@ -124,6 +140,28 @@ class App extends Component {
     // Handle potential errors.
       .catch((err) => {
         this.setState({ hasError : true }); 
+      }); 
+  }
+  fetchMoreCharacters() {
+    // Invoke the `getCharacters()` method on the marvel service.
+    this.marvelService.getCharacters({ 
+      nameStartsWith : this.state.searchTerm,
+      offset: this.state.results.length, 
+    })
+    // Pass in the current `searchTerm` as `nameStartsWith`,
+      .then((data) => {
+        // Update the application state using the resulting data.
+        // Remove the loading state.
+        this.setState({ 
+          results: [...this.state.results, ...data.results], 
+          canLoadMore: data.total > data.offset + data.count,
+
+        });
+
+      })
+      // Handle potential errors.
+      .catch((err) => {
+        this.setState({ hasError : true})
       }); 
   }
 }

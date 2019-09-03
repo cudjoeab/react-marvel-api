@@ -32,7 +32,7 @@ export class MarvelService {
   // CHARACTERS-RELATED METHODS
   // --------------------------------------------------
   getCharacters(config = {}) {
-    console.warn('Whoops, it looks like this method hasn\'t been implemented yet.');
+    
     // TODO:
     // - Create the `params` object.
     const params = {...config, ...this.getAuthConfig()}; 
@@ -48,7 +48,7 @@ export class MarvelService {
   }
 
   getCharacter(id, config = {}) {
-    console.warn('Whoops, it looks like this method hasn\'t been implemented yet.');
+   
     // TODO:
     // - Create the `params` object.
     const params = {...config, ...this.getAuthConfig()};
