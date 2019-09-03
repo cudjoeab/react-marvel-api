@@ -21,6 +21,7 @@ class App extends Component {
       selectedResult: null,
     };
 
+    this.fetchMoreCharacters = this.fetchMoreCharacters.bind(this); 
     this.fetchCharacters = this.fetchCharacters.bind(this);
     this.fetchCharacter = this.fetchCharacter.bind(this);
 
@@ -61,7 +62,7 @@ class App extends Component {
     let loadMoreElem = '';
 
     if (this.state.canLoadMore) {
-      loadMoreElem = <LoadMore/>; 
+      loadMoreElem = <LoadMore onClick={ this.fetchMoreCharacters }/>; 
     }
 
     return (
