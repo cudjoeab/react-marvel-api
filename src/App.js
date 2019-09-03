@@ -115,8 +115,16 @@ class App extends Component {
     // TODO:
     // Invoke the `getCharacter()` method on the marvel service.
     // Pass in the `id`.
+    this.marvelService.getCharacter(id)
     // Update the application state using the resulting data.
+      .then((data) => {
+        const result = data.results[0];
+        this.setState({ selectedResult : result }); 
+      })
     // Handle potential errors.
+      .catch((err) => {
+        this.setState({ hasError : true }); 
+      }); 
   }
 }
 
